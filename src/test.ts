@@ -9,7 +9,7 @@ async function testServer() {
     // Test 1: Get recommendations (first page)
     console.log('1. Testing GET /recommendations');
     const recommendations = await fetch(`${BASE_URL}/recommendations?limit=2`);
-    const recommendationsData = await recommendations.json();
+    const recommendationsData = await recommendations.json() as { data: { recommendationId: string }[] };
     console.log('Response:', JSON.stringify(recommendationsData, null, 2), '\n');
 
     // Test 2: Archive a recommendation
@@ -51,11 +51,12 @@ async function testServer() {
     console.log('Response:', JSON.stringify(loginData, null, 2), '\n');
 
     // Test 6: Authenticated request
-    if (loginData.token) {
+    if (typeof loginData === 'object' && loginData !== null && 'token' in loginData) {
+      const token = (loginData as { token: string }).token;
       console.log('6. Testing authenticated GET /recommendations');
       const authed = await fetch(`${BASE_URL}/recommendations`, {
         headers: {
-          'Authorization': `Bearer ${loginData.token}`
+          'Authorization': `Bearer ${token}`
         }
       });
       const authedData = await authed.json();
